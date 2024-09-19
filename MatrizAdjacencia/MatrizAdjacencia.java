@@ -1,73 +1,89 @@
+package MatrizAdjacencia;
+
 import javax.swing.JOptionPane;
 
 public class MatrizAdjacencia {
-    private int[][] matriz;
-    private int numVertices;
 
-    public MatrizAdjacencia(int numVertices) {
-        this.numVertices = numVertices;
-        matriz = new int[numVertices][numVertices];
-    }
+    public static void main(String[] args) {
+        int qtdeVertices = lerInteiro("Informe a quantidade de vértices do grafo:", 1, Integer.MAX_VALUE);
+        Grafo g = new Grafo(qtdeVertices);
 
-    public void adicionarAresta(int origem, int destino, int peso) {
-        if (origem >= 0 && origem < numVertices && destino >= 0 && destino < numVertices) {
-            matriz[origem][destino] = peso;
-        } else {
-            JOptionPane.showMessageDialog(null, "Vértice inválido.");
-        }
-    }
+        int op;
+        do {
+            op = lerInteiro("1 - Adicionar aresta\n" +
+                            "2 - Remover aresta\n" +
+                            "3 - Consultar número de vértices isolados\n" +
+                            "4 - Imprimir matriz de adjacência\n" +
+                            "5 - Consultar grau de um vértice\n" +
+                            "6 - Verificar se o grafo é simples ou multigrafo\n" +
+                            "7 - Verificar se o grafo é conexo\n" +
+                            "8 - Contar vértices isolados\n" +
+                            "9 - Consultar vizinhos de um vértice\n" +
+                            "10 - Sair\n" +
+                            "Informe a opção desejada:", 1, 10);
 
-    public void removerAresta(int origem, int destino) {
-        if (origem >= 0 && origem < numVertices && destino >= 0 && destino < numVertices) {
-            matriz[origem][destino] = 0;
-        } else {
-            JOptionPane.showMessageDialog(null, "Vértice inválido.");
-        }
-    }
-
-    public String imprimirMatriz() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < numVertices; i++) {
-            for (int j = 0; j < numVertices; j++) {
-                sb.append(matriz[i][j]).append(" ");
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
-
-    public int getPeso(int origem, int destino) {
-        return matriz[origem][destino];
-    }
-
-    public int getNumVertices() {
-        return numVertices;
-    }
-
-    public String listarVizinhos(int vertice) {
-        if (vertice < 0 || vertice >= numVertices) {
-            return "Vértice inválido.";
-        }
-        StringBuilder sb = new StringBuilder("Vizinhos do vértice " + vertice + ": ");
-        for (int i = 0; i < numVertices; i++) {
-            if (matriz[vertice][i] > 0) {
-                sb.append(i).append(" (Peso: ").append(matriz[vertice][i]).append(") ");
-            }
-        }
-        return sb.toString();
-    }
-
-    public String listarArestas() {
-        StringBuilder sb = new StringBuilder("Arestas do grafo:\n");
-        for (int i = 0; i < numVertices; i++) {
-            for (int j = 0; j < numVertices; j++) {
-                if (matriz[i][j] > 0) {
-                    sb.append("Origem: ").append(i)
-                      .append(", Destino: ").append(j)
-                      .append(", Peso: ").append(matriz[i][j]).append("\n");
+            switch (op) {
+                case 1 -> {
+                    int vOrigem = lerInteiro("Informe o vértice de origem:", 1, qtdeVertices);
+                    int vDestino = lerInteiro("Informe o vértice de destino:", 1, qtdeVertices);
+                    g.adicionarAresta(vOrigem, vDestino);
                 }
+                case 2 -> {
+                    int vOrigem = lerInteiro("Informe o vértice de origem:", 1, qtdeVertices);
+                    int vDestino = lerInteiro("Informe o vértice de destino:", 1, qtdeVertices);
+                    g.removerAresta(vOrigem, vDestino);
+                }
+                case 3 -> JOptionPane.showMessageDialog(null, "O grafo possui " + g.contarVerticesIsolados() + " vértice(s) isolado(s).");
+                case 4 -> g.imprimirGrafo();
+                case 5 -> {
+                    int vertice = lerInteiro("Informe o vértice para consultar o grau:", 1, qtdeVertices);
+                    int grau = g.consultaGrau(vertice);
+                    if (grau != -1) {
+                        JOptionPane.showMessageDialog(null, "O grau do vértice informado é: " + grau);
+                    }
+                }
+                case 6 -> {
+                    if (g.grafoSimples()) {
+                        JOptionPane.showMessageDialog(null, "O grafo é simples (sem laços ou arestas paralelas).");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "O grafo é multigrafo (contém laços e/ou arestas paralelas).");
+                    }
+                }
+                case 7 -> {
+                    if (g.isConectado()) {
+                        JOptionPane.showMessageDialog(null, "O grafo é conexo.");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "O grafo não é conexo.");
+                    }
+                }
+                case 8 -> {
+                    int isolados = g.contarVerticesIsolados();
+                    JOptionPane.showMessageDialog(null, "O grafo possui " + isolados + " vértice(s) isolado(s).");
+                }
+                case 9 -> {
+                    int vertice = lerInteiro("Informe o vértice para consultar os vizinhos:", 1, qtdeVertices);
+                    String vizinhos = g.vizinhos(vertice);
+                    JOptionPane.showMessageDialog(null, vizinhos);
+                }
+                case 10 -> JOptionPane.showMessageDialog(null, "Saindo...");
+                default -> JOptionPane.showMessageDialog(null, "Opção inválida!");
+            }
+        } while (op != 10);
+    }
+
+    private static int lerInteiro(String mensagem, int minimo, int maximo) {
+        while (true) {
+            try {
+                int valor = Integer.parseInt(JOptionPane.showInputDialog(mensagem));
+                if (valor < minimo || valor > maximo) {
+                    throw new IllegalArgumentException("O valor deve estar entre " + minimo + " e " + maximo);
+                }
+                return valor;
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Por favor, insira um número válido.");
+            } catch (IllegalArgumentException e) {
+                JOptionPane.showMessageDialog(null, e.getMessage());
             }
         }
-        return sb.toString();
     }
 }
