@@ -46,7 +46,7 @@ public class Digrafo {
     public boolean ehDigrafoSimples() {
         for (int i = 0; i < vertices; i++) {
             if (matrizAdjacencia[i][i] > 0) {
-                return false; // Existem laços, portanto não é um dígrafo simples
+                return false; 
             }
         }
         return true;
